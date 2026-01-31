@@ -1,41 +1,52 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from pydantic import BaseModel
+from typing import Optional
 from openai import OpenAI
 import json, os
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+
+# Import database and routers
+import database
+import auth
+import models
+import dependencies
+from routers.auth_router import router as auth_router
+from routers.auth_router import router as auth_router
+from routers.users_router import router as users_router
+from routers.tracks_router import router as tracks_router
 
 
 load_dotenv()
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Connect to MongoDB
+    await database.connect_to_mongo()
+    print("\n\n✅✅✅ BACKEND RESTARTED SUCCESSFULLY! READY FOR REQUESTS ✅✅✅\n\n")
+    yield
+    # Shutdown: Close MongoDB connection
+    await database.close_mongo_connection()
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-@app.get("/lessons/{track}")
-async def get_lessons(track: str):
-    if track not in ["chatgpt"]:
-        return {"lessons": []}
+# Include routers
+app.include_router(auth_router)
+app.include_router(users_router)
+app.include_router(tracks_router)
 
-    return {
-        "lessons": curriculum["lessons"]
-    }
-@app.get("/tasks/{track}")
-async def get_tasks(track: str):
-    lesson_tasks = []
 
-    for lesson in curriculum["lessons"]:
-        for i in range(1, 4):   # 3 tasks per lesson (example)
-            lesson_tasks.append({
-                "label": f"{lesson['title']} Task {i}"
-            })
-
-    return {"tasks": lesson_tasks}
 
 
 client = OpenAI(
@@ -43,51 +54,94 @@ client = OpenAI(
     api_key=os.getenv("FASTROUTER_API_KEY"),
 )
 
+
 # -------- LOAD CURRICULUM --------
-with open("curriculum/chatgpt.json") as f:
-    curriculum = json.load(f)
+curricula = {}
+possible_tracks = ["chatgpt", "ai-coding"]
 
-# -------- USER PROGRESS (STATIC SIMULATION) --------
-user_progress = {
-    "lesson": 1,
-    "task": 1,
-    "score": 0
-}
-# -------- CURRENT TASK CONTEXT --------
-current_task_context = {
-    "task_text": "",
-    "lesson_title": "",
-    "lesson_topics": []
-}
+for track in possible_tracks:
+    try:
+        with open(f"curriculum/{track}.json") as f:
+            curricula[track] = json.load(f)
+    except FileNotFoundError:
+        print(f"Warning: Curriculum for {track} not found.")
 
+# ... (Previous imports remain)
 
+@app.get("/lessons/{track}")
+async def get_lessons(track: str):
+    if track not in curricula:
+        return {"lessons": []}
+
+    return {
+        "lessons": curricula[track]["lessons"]
+    }
+
+@app.get("/tasks/{track}")
+async def get_tasks(track: str):
+    if track not in curricula:
+        return {"tasks": []}
+    
+    return {
+        "tasks": curricula[track].get("tasks", [])
+    }
+
+# -------- REQUEST MODELS --------
 class TaskRequest(BaseModel):
     track: str
+    taskId: Optional[str] = None # Make optional
 
 class EvalRequest(BaseModel):
     prompt: str
     output: str
+    track: str
+    taskId: Optional[str] = None
 
 
 # -------- PROMPT BUILDER --------
-def build_system_prompt(track):
-    lesson_id = user_progress["lesson"]
-    task_no = user_progress["task"]
-    score = user_progress["score"]
+def build_system_prompt(track, lesson_index, task_no, previous_feedback=None, preferences=None):
+    # Select correct curriculum
+    target_curriculum = curricula.get(track, curricula.get("chatgpt")) 
+    
+    try:
+        lesson = target_curriculum["lessons"][lesson_index]
+    except IndexError:
+        lesson = target_curriculum["lessons"][0]
 
-    lesson = curriculum["lessons"][lesson_id - 1]
+    feedback_instruction = ""
+    if previous_feedback:
+        feedback_instruction = f"""
+ADAPTIVE INSTRUCTION:
+The user previously struggled with: "{previous_feedback}".
+You MUST include a requirement in this new task that specifically forces the user to practice this weak area.
+"""
+
+    preference_instruction = ""
+    if preferences:
+        goal = preferences.get("goal", "general learning")
+        level = preferences.get("level", "intermediate")
+        role = preferences.get("role", "student")
+        
+        preference_instruction = f"""
+PERSONALIZATION:
+- User Role: {role}
+- User Goal: {goal}
+- Skill Level: {level}
+(Adjust the difficulty and context of the task to match this profile. e.g. if 'Developer', use code examples. If 'Beginner', keep it simple.)
+"""
 
     return f"""
 You are an AI Learning Mentor.
 
-Track: {track}
+Track: {target_curriculum.get('track', track)}
 Lesson: {lesson['title']}
 Lesson Description: {lesson['description']}
 Topics: {', '.join(lesson['topics'])}
 
 User State:
 - Task Number: {task_no}
-- Previous Score: {score}/10
+{preference_instruction}
+{feedback_instruction}
 
 Rules:
 - Practical real-world task
@@ -101,12 +155,39 @@ Rules:
 
 # -------- GENERATE TASK --------
 @app.post("/generate-task")
-async def generate_task(data: TaskRequest):
+async def generate_task(
+    data: TaskRequest,
+    current_user: models.UserInDB = Depends(dependencies.get_current_user)
+):
+    db = database.get_database()
+    
+    # 1. Get User Progress
+    progress = await db["track_progress"].find_one({
+        "user_id": current_user.id,
+        "track_slug": data.track
+    })
+    
+    lesson_index = 0
+    task_index = 1
+    preferences = {}
+    
+    if progress:
+        lesson_index = progress.get("current_lesson_index", 0)
+        task_index = (progress.get("tasks_completed", 0) % 3) + 1
+        preferences = progress.get("preferences", {})
 
-    lesson_id = user_progress["lesson"]
-    lesson = curriculum["lessons"][lesson_id - 1]
+    # 2. Get Previous Feedback
+    last_completion = await db["task_completions"].find_one(
+        {"user_id": current_user.id, "track_slug": data.track},
+        sort=[("completed_at", -1)]
+    )
+    
+    previous_feedback = None
+    if last_completion and last_completion.get("feedback_summary"):
+        previous_feedback = last_completion["feedback_summary"]
 
-    system_prompt = build_system_prompt(data.track)
+    # 3. Build Prompt
+    system_prompt = build_system_prompt(data.track, lesson_index, task_index, previous_feedback, preferences)
 
     completion = client.chat.completions.create(
         model="openai/gpt-4o-mini",
@@ -118,62 +199,31 @@ async def generate_task(data: TaskRequest):
 
     task_text = completion.choices[0].message.content
 
-    # STORE TASK CONTEXT
-    current_task_context["task_text"] = task_text
-    current_task_context["lesson_title"] = lesson["title"]
-    current_task_context["lesson_topics"] = lesson["topics"]
-
-    return {"task": task_text}
+    return {
+        "task": task_text,
+        "lesson_index": lesson_index,
+        "previous_feedback": previous_feedback
+    }
 
 def get_evaluation_criteria(lesson_title):
-    if lesson_title == "Core Basics":
+    if lesson_title == "Core Basics" or "Introduction" in lesson_title:
         return "Clarity, Specificity, Role Assignment, Output Format, Conciseness"
-    if lesson_title == "Prompt Formulation":
-        return "Persona, Context, Clear Task, Examples, Iteration"
-    if lesson_title == "Advanced Patterns":
-        return "Zero/Few Shot Usage, Logical Flow, Template Reusability"
-    if lesson_title == "Practical Applications":
-        return "Real-world Usefulness, Output Quality, Follow-ups"
-    if lesson_title == "Best Practices and Ethics":
-        return "Bias Reduction, Verification, Responsible Use"
+    return "Persona, Context, Clear Task, Examples, Iteration"
 
 
-def build_evaluation_prompt(user_prompt, user_output):
-
-    criteria = get_evaluation_criteria(
-        current_task_context["lesson_title"]
-    )
+def build_evaluation_prompt(user_prompt, user_output, lesson_title, task_text):
+    criteria = get_evaluation_criteria(lesson_title)
 
     return f"""
-You are a friendly AI Mentor helping a student learn prompt engineering.
+You are a friendly AI Mentor evaluating a student.
+TASK: {task_text}
+LESSON: {lesson_title}
+CRITERIA: {criteria}
 
-Speak like a supportive human teacher.
-Be encouraging, not robotic.
-Do NOT be harsh.
-Use simple conversational tone.
-Address the student as "you".
+USER PROMPT: {user_prompt}
+LLM OUTPUT: {user_output}
 
-TASK GIVEN:
-{current_task_context["task_text"]}
-
-CURRENT LESSON:
-{current_task_context["lesson_title"]}
-
-LESSON TOPICS:
-{', '.join(current_task_context["lesson_topics"])}
-
-EVALUATION FOCUS:
-{criteria}
-
-USER PROMPT:
-{user_prompt}
-
-LLM OUTPUT:
-{user_output}
-
-Now evaluate like a mentor.
-
-Return format EXACTLY like this:
+Evaluate. Format exactly like this:
 
 Score: X/10
 
@@ -181,32 +231,40 @@ What You Did Well:
 - ...
 
 What You Missed:
-- Mention which lesson concepts were missing
+- (Crucial: List 1-2 specific missing concepts)
 
 How To Improve:
-- Concrete steps user can take
-- Example mini prompt if needed
+- ...
 
-Next Skill To Focus:
-- Mention next lesson topic or technique
-
-Tone Rules:
-- Encourage progress
-- Avoid negativity
-- Be specific
-- Sound human, not AI
+Feedback Summary:
+(One short sentence summarizing the main mistake for the database)
 """
-
 
 
 # -------- EVALUATE --------
 @app.post("/evaluate")
-async def evaluate(data: EvalRequest):
+async def evaluate(
+    data: EvalRequest,
+    current_user: models.UserInDB = Depends(dependencies.get_current_user)
+):
+    db = database.get_database()
+    progress = await db["track_progress"].find_one({
+        "user_id": current_user.id,
+        "track_slug": data.track
+    })
+    
+    lesson_index = 0
+    if progress:
+        lesson_index = progress.get("current_lesson_index", 0)
+        
+    try:
+        # Use curricula dictionary
+        target_curriculum = curricula.get(data.track, curricula["chatgpt"])
+        lesson_title = target_curriculum["lessons"][lesson_index]["title"]
+    except:
+        lesson_title = "General Practice"
 
-    eval_prompt = build_evaluation_prompt(
-        data.prompt,
-        data.output
-    )
+    eval_prompt = build_evaluation_prompt(data.prompt, data.output, lesson_title, "User's current task")
 
     completion = client.chat.completions.create(
         model="openai/gpt-4o-mini",
@@ -214,11 +272,5 @@ async def evaluate(data: EvalRequest):
     )
 
     evaluation = completion.choices[0].message.content
-
-    # SIMULATE PROGRESS UPDATE
-    user_progress["task"] += 1
-    if user_progress["task"] > 3:
-        user_progress["lesson"] += 1
-        user_progress["task"] = 1
-
+    
     return {"evaluation": evaluation}

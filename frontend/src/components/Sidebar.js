@@ -4,12 +4,17 @@ import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import styles from "./sidebar.module.css";
+import useAuth from "../app/hooks/useAuth";
+import { userAPI } from "../utils/api";
 
 export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [activeItem, setActiveItem] = useState("");
+  const { user, logout, isAuthenticated } = useAuth();
+  const [dailyProgress, setDailyProgress] = useState(null);
+  const [loadingProgress, setLoadingProgress] = useState(true);
 
   const menuItems = [
     { id: "home", label: "Home", path: "/home" },
@@ -17,18 +22,39 @@ export default function Sidebar() {
     { id: "settings", label: "Settings", path: null }
   ];
 
+  // Fetch daily progress
+  useEffect(() => {
+    const fetchDailyProgress = async () => {
+      if (!isAuthenticated) {
+        setLoadingProgress(false);
+        return;
+      }
+
+      try {
+        const response = await userAPI.getDailyProgress();
+        setDailyProgress(response.data);
+      } catch (error) {
+        console.error('Failed to fetch daily progress:', error);
+      } finally {
+        setLoadingProgress(false);
+      }
+    };
+
+    fetchDailyProgress();
+  }, [isAuthenticated]);
+
   // Set active item based on current pathname
   useEffect(() => {
     // Extract the base path (without potential query params)
     const currentPath = pathname.split('/').filter(Boolean)[0] || '';
-    
+
     // Find which menu item matches the current path
     const active = menuItems.find(item => {
       if (!item.path) return false;
       const itemPath = item.path.replace('/', '');
       return currentPath.toLowerCase() === itemPath.toLowerCase();
     });
-    
+
     if (active) {
       setActiveItem(active.id);
     }
@@ -42,9 +68,8 @@ export default function Sidebar() {
   };
 
   const handleSignOut = () => {
-    console.log("Sign out clicked");
-    // Add sign out logic here
-    // router.push("/login");
+    logout();
+    router.push("/login");
   };
 
   return (
@@ -64,10 +89,9 @@ export default function Sidebar() {
           {menuItems.map((item) => (
             <li key={item.id} className={styles.menuItem}>
               {item.path ? (
-                <div 
-                  className={`${styles.menuLink} ${
-                    activeItem === item.id ? styles.active : ""
-                  }`}
+                <div
+                  className={`${styles.menuLink} ${activeItem === item.id ? styles.active : ""
+                    }`}
                   onClick={() => handleItemClick(item.id, item.path)}
                 >
                   <span className={styles.menuIcon}>
@@ -79,10 +103,9 @@ export default function Sidebar() {
                   )}
                 </div>
               ) : (
-                <div 
-                  className={`${styles.menuLink} ${
-                    activeItem === item.id ? styles.active : ""
-                  }`}
+                <div
+                  className={`${styles.menuLink} ${activeItem === item.id ? styles.active : ""
+                    }`}
                   onClick={() => {
                     setActiveItem(item.id);
                     setOpen(!open);
@@ -97,11 +120,11 @@ export default function Sidebar() {
                   </span>
                 </div>
               )}
-              
+
               {/* SETTINGS DROPDOWN */}
               {item.id === "settings" && open && (
                 <div className={styles.dropdown}>
-                  <div 
+                  <div
                     className={styles.dropdownItem}
                     onClick={() => {
                       router.push("/Profile");
@@ -111,9 +134,9 @@ export default function Sidebar() {
                     <span className={styles.dropdownIcon}>👤</span>
                     <span>Profile</span>
                   </div>
-                  <div 
+                  <div
                     className={styles.dropdownItem}
-                    onClick={() => {router.push("/");}}
+                    onClick={handleSignOut}
                   >
                     <span className={styles.dropdownIcon}>🚪</span>
                     <span>Sign Out</span>
@@ -133,26 +156,41 @@ export default function Sidebar() {
             <span className={styles.statsTitle}>Today's Progress</span>
           </div>
           <div className={styles.statsBar}>
-            <div 
+            <div
               className={styles.statsProgress}
-              style={{ width: "65%" }}
+              style={{ width: `${dailyProgress?.percentage || 0}%` }}
             />
           </div>
           <div className={styles.statsText}>
-            <span>3 of 5 tasks completed</span>
-            <span className={styles.statsPercent}>65%</span>
+            <span>
+              {loadingProgress ? 'Loading...' :
+                `${dailyProgress?.tasks_completed || 0} of 5 tasks completed`}
+            </span>
+            <span className={styles.statsPercent}>
+              {Math.round(dailyProgress?.percentage || 0)}%
+            </span>
           </div>
         </div>
       </div>
 
       {/* USER PROFILE */}
-      <div className={styles.profileSection}>
+      <div
+        className={styles.profileSection}
+        onClick={() => router.push("/Profile")}
+        style={{ cursor: 'pointer' }}
+      >
         <div className={styles.profileAvatar}>
-          <span className={styles.avatarIcon}>👨‍🚀</span>
+          <span className={styles.avatarIcon}>
+            {user?.avatar_icon || "👨‍🚀"}
+          </span>
         </div>
         <div className={styles.profileInfo}>
-          <span className={styles.profileName}>Astro Learner</span>
-          <span className={styles.profileRole}>Space Cadet</span>
+          <span className={styles.profileName}>
+            {user?.display_name || user?.username || "Guest"}
+          </span>
+          <span className={styles.profileRole}>
+            {user ? "AI Learner" : "Not logged in"}
+          </span>
         </div>
         <div className={styles.onlineIndicator}></div>
       </div>

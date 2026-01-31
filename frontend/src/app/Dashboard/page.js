@@ -1,13 +1,70 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Footer from "../../components/Footer";
 import styles from "./Dashboard.module.css";
 import Sidebar from "../../components/Sidebar";
+import useAuth from "../hooks/useAuth";
+import { userAPI, trackAPI } from "../../utils/api";
+import Link from "next/link";
 
 export default function Dashboard() {
+  const router = useRouter();
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const [stats, setStats] = useState(null);
+  const [enrolledTracks, setEnrolledTracks] = useState([]);
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Auth check
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push("/login");
+    }
+  }, [isAuthenticated, authLoading, router]);
+
+  // Fetch dashboard data
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!isAuthenticated) return;
+
+      try {
+        setLoading(true);
+
+        // Fetch stats
+        const statsResponse = await userAPI.getStats();
+        setStats(statsResponse.data);
+
+        // Fetch enrolled tracks
+        const tracksResponse = await trackAPI.getEnrolled();
+        setEnrolledTracks(tracksResponse.data);
+
+        // In a real app, you'd fetch recent activity too.
+        // For now, we'll fetch completed tasks for the first track as activity.
+        if (tracksResponse.data.length > 0) {
+          const activityResponse = await trackAPI.getCompletedTasks(tracksResponse.data[0].track_slug);
+          setRecentActivity(activityResponse.data.slice(0, 5)); // Last 5 tasks
+        }
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated && !authLoading) return null;
+
+  const currentTrack = enrolledTracks[0];
+
   return (
     <main className={styles.page}>
       <div className={styles.layout}>
         <Sidebar />
-        
+
         <div className={styles.content}>
           {/* HEADER */}
           <header className={styles.header}>
@@ -18,28 +75,28 @@ export default function Dashboard() {
           {/* STATS GRID */}
           <section className={styles.statsSection}>
             <div className={styles.statsGrid}>
-              <StatCard 
-                title="XP Earned" 
-                value="1,240 XP"
+              <StatCard
+                title="XP Earned"
+                value={loading ? "..." : `${stats?.total_xp?.toLocaleString() || 0} XP`}
                 icon="⭐"
                 color="primary"
               />
-              <StatCard 
-                title="Current Streak" 
-                value="5 Days"
+              <StatCard
+                title="Current Streak"
+                value={loading ? "..." : `${stats?.streak_days || 0} Days`}
                 icon="🔥"
                 color="secondary"
               />
-              <StatCard 
-                title="Completed Tasks" 
-                value="18"
+              <StatCard
+                title="Completed Tasks"
+                value={loading ? "..." : enrolledTracks.reduce((acc, t) => acc + t.tasks_completed, 0)}
                 icon="✅"
                 color="accent"
               />
-              <StatCard 
-                title="Active Days" 
-                value="7"
-                icon="📅"
+              <StatCard
+                title="Courses Started"
+                value={loading ? "..." : enrolledTracks.length}
+                icon="📚"
                 color="purple"
               />
             </div>
@@ -49,86 +106,64 @@ export default function Dashboard() {
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>Current Track</h2>
-              <span className={styles.sectionBadge}>Active</span>
+              <span className={styles.sectionBadge}>
+                {currentTrack ? "Active" : "None"}
+              </span>
             </div>
 
-            <div className={styles.currentTrack}>
-              <div className={styles.trackInfo}>
-                <div className={styles.trackIcon}>💬</div>
-                <div>
-                  <h3 className={styles.trackName}>ChatGPT Mastery</h3>
-                  <p className={styles.trackDesc}>Prompt engineering · AI workflows · Productivity</p>
+            {currentTrack ? (
+              <div className={styles.currentTrack}>
+                <div className={styles.trackInfo}>
+                  <div className={styles.trackIcon}>💬</div>
+                  <div>
+                    <h3 className={styles.trackName}>{currentTrack.track_name}</h3>
+                    <p className={styles.trackDesc}>Continue where you left off</p>
+                  </div>
                 </div>
-              </div>
-              
-              <div className={styles.trackProgress}>
-                <div className={styles.progressBar}>
-                  <div className={styles.progressFill} style={{ width: '65%' }}></div>
-                </div>
-                <span className={styles.progressText}>65% Complete</span>
-              </div>
 
-              <div className={styles.trackActions}>
-                <button className={styles.primaryBtn}>Continue Learning</button>
-                <button className={styles.secondaryBtn}>View Details</button>
+                <div className={styles.trackProgress}>
+                  <div className={styles.progressBar}>
+                    <div className={styles.progressFill} style={{ width: `${currentTrack.percent_complete}%` }}></div>
+                  </div>
+                  <span className={styles.progressText}>{Math.round(currentTrack.percent_complete)}% Complete</span>
+                </div>
+
+                <div className={styles.trackActions}>
+                  <Link href={`/track/${currentTrack.track_slug}`} className={styles.primaryBtn}>
+                    Continue Learning
+                  </Link>
+                  <Link href="/home" className={styles.secondaryBtn}>Explore Others</Link>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className={styles.currentTrack}>
+                <p>No active tracks yet. Start one from the Home page!</p>
+              </div>
+            )}
           </section>
 
           {/* RECENT ACTIVITY */}
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>Recent Activity</h2>
-              <button className={styles.viewAllBtn}>View All →</button>
+              <button className={styles.viewAllBtn} onClick={() => router.push("/home")}>Browse Tracks</button>
             </div>
 
             <div className={styles.activityList}>
-              <ActivityItem 
-                title="Completed: Advanced Prompting"
-                time="2 hours ago"
-                type="completed"
-              />
-              <ActivityItem 
-                title="Started: AI Workflow Design"
-                time="Yesterday"
-                type="started"
-              />
-              <ActivityItem 
-                title="Earned: 150 XP"
-                time="2 days ago"
-                type="earned"
-              />
-            </div>
-          </section>
-
-          {/* EXPLORE TRACKS */}
-          <section className={styles.section}>
-            <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Explore Tracks</h2>
-              <p className={styles.sectionSubtitle}>Expand your AI knowledge</p>
-            </div>
-
-            <div className={styles.tracksGrid}>
-              <TrackCard 
-                title="Claude AI" 
-                description="Advanced conversation AI"
-                icon="🤖"
-              />
-              <TrackCard 
-                title="Gemini AI" 
-                description="Google's multimodal AI"
-                icon="🔮"
-              />
-              <TrackCard 
-                title="AI for Coding" 
-                description="Code generation & assistance"
-                icon="💻"
-              />
-              <TrackCard 
-                title="AI for Productivity" 
-                description="Automate your workflow"
-                icon="⚡"
-              />
+              {recentActivity.length > 0 ? (
+                recentActivity
+                  .filter(activity => activity.task_id && /^\d+-\d+$/.test(activity.task_id)) // Filter legacy IDs like 't1'
+                  .map((activity, i) => (
+                    <ActivityItem
+                      key={`${activity.id || 'act'}-${i}`}
+                      title={`Completed Task: ${activity.task_id}`}
+                      time={new Date(activity.completed_at).toLocaleString()}
+                      type="completed"
+                    />
+                  ))
+              ) : (
+                <p>No recent activity found.</p>
+              )}
             </div>
           </section>
 
@@ -153,22 +188,9 @@ function StatCard({ title, value, icon, color = 'primary' }) {
   );
 }
 
-function TrackCard({ title, description, icon }) {
-  return (
-    <div className={styles.trackCard}>
-      <div className={styles.trackCardHeader}>
-        <div className={styles.trackCardIcon}>{icon}</div>
-        <h3 className={styles.trackCardTitle}>{title}</h3>
-      </div>
-      <p className={styles.trackCardDesc}>{description}</p>
-      <button className={styles.trackCardBtn}>Start Learning</button>
-    </div>
-  );
-}
-
 function ActivityItem({ title, time, type }) {
   const getTypeIcon = () => {
-    switch(type) {
+    switch (type) {
       case 'completed': return '✅';
       case 'started': return '🚀';
       case 'earned': return '⭐';

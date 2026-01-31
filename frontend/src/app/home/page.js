@@ -1,66 +1,114 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./home.module.css";
 import Sidebar from "../../components/Sidebar";
 import Link from "next/link";
 import Footer from "../../components/Footer";
+import useAuth from "../hooks/useAuth";
+import { userAPI, trackAPI } from "../../utils/api";
 
 export default function HomePage() {
-  const tracks = [
-    { 
-      title: "ChatGPT Mastery", 
+  const router = useRouter();
+  const { user, isAuthenticated } = useAuth();
+  const [stats, setStats] = useState(null);
+  const [enrolledTracks, setEnrolledTracks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/login");
+    }
+  }, [isAuthenticated, router]);
+
+  // Fetch user stats and enrolled tracks
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!isAuthenticated) return;
+
+      try {
+        setLoading(true);
+
+        // Fetch stats
+        console.log('Fetching user stats from:', `${process.env.NEXT_PUBLIC_API_URL}/api/users/stats`);
+        const statsResponse = await userAPI.getStats();
+        console.log('Stats response:', statsResponse.data);
+        setStats(statsResponse.data);
+
+        // Fetch enrolled tracks
+        console.log('Fetching enrolled tracks from:', `${process.env.NEXT_PUBLIC_API_URL}/api/tracks/enrolled`);
+        const tracksResponse = await trackAPI.getEnrolled();
+        console.log('Tracks response:', tracksResponse.data);
+        setEnrolledTracks(tracksResponse.data);
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+        console.error('Error details:', {
+          message: error.message,
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          url: error.config?.url,
+          baseURL: error.config?.baseURL,
+          data: error.response?.data
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [isAuthenticated]);
+
+  // All available tracks (for browsing)
+  const allTracks = [
+    {
+      title: "ChatGPT Mastery",
       description: "Master prompt engineering and AI workflows",
-      progress: 65,
       icon: "💬",
       slug: "chatgpt"
     },
-    { 
-      title: "CANVA AI", 
+    {
+      title: "CANVA AI",
       description: "Design with AI-powered tools",
-      progress: 0,
       icon: "🎨",
       slug: "canva"
     },
-    { 
-      title: "NOTION AI", 
+    {
+      title: "NOTION AI",
       description: "Boost productivity with AI assistance",
-      progress: 0,
       icon: "📝",
       slug: "notion"
     },
-    { 
-      title: "CURSOR AI", 
+    {
+      title: "CURSOR AI",
       description: "AI-powered code editor mastery",
-      progress: 0,
       icon: "💻",
       slug: "cursor"
     },
-    { 
-      title: "JASPER AI", 
+    {
+      title: "JASPER AI",
       description: "Content creation with AI",
-      progress: 0,
       icon: "✍️",
       slug: "jasper"
     },
-    { 
-      title: "MIDJOURNEY", 
+    {
+      title: "MIDJOURNEY",
       description: "AI art generation mastery",
-      progress: 0,
       icon: "🖼️",
       slug: "midjourney"
     }
   ];
 
-  const stats = [
-    { label: "Learning Streak", value: "5 days", icon: "🔥" },
-    { label: "XP Earned", value: "1,240 XP", icon: "⭐" },
-    { label: "Courses Started", value: "3", icon: "📚" },
-    { label: "Hours Learning", value: "24h", icon: "⏱️" }
-  ];
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <main className={styles.page}>
       <div className={styles.layout}>
         <Sidebar />
-        
+
         <div className={styles.content}>
           {/* HERO SECTION */}
           <section className={styles.hero}>
@@ -71,6 +119,7 @@ export default function HomePage() {
               <p className={styles.heroSubtitle}>
                 Master AI tools with personalized learning paths. Start your journey to becoming an AI expert.
               </p>
+
               <div className={styles.heroStats}>
                 <div className={styles.statItem}>
                   <span className={styles.statNumber}>100+</span>
@@ -101,15 +150,45 @@ export default function HomePage() {
           <section className={styles.statsSection}>
             <h2 className={styles.sectionTitle}>Your Learning Dashboard</h2>
             <div className={styles.statsGrid}>
-              {stats.map((stat, index) => (
-                <div key={index} className={styles.statCard}>
-                  <div className={styles.statIcon}>{stat.icon}</div>
-                  <div className={styles.statContent}>
-                    <span className={styles.statValue}>{stat.value}</span>
-                    <span className={styles.statLabel}>{stat.label}</span>
-                  </div>
+              <div className={styles.statCard}>
+                <div className={styles.statIcon}>🔥</div>
+                <div className={styles.statContent}>
+                  <span className={styles.statValue}>
+                    {loading ? "..." : `${stats?.streak_days || 0} days`}
+                  </span>
+                  <span className={styles.statLabel}>Learning Streak</span>
                 </div>
-              ))}
+              </div>
+
+              <div className={styles.statCard}>
+                <div className={styles.statIcon}>⭐</div>
+                <div className={styles.statContent}>
+                  <span className={styles.statValue}>
+                    {loading ? "..." : `${stats?.total_xp?.toLocaleString() || 0} XP`}
+                  </span>
+                  <span className={styles.statLabel}>XP Earned</span>
+                </div>
+              </div>
+
+              <div className={styles.statCard}>
+                <div className={styles.statIcon}>📚</div>
+                <div className={styles.statContent}>
+                  <span className={styles.statValue}>
+                    {loading ? "..." : enrolledTracks.length}
+                  </span>
+                  <span className={styles.statLabel}>Courses Started</span>
+                </div>
+              </div>
+
+              <div className={styles.statCard}>
+                <div className={styles.statIcon}>⏱️</div>
+                <div className={styles.statContent}>
+                  <span className={styles.statValue}>
+                    {loading ? "..." : `${Math.round(stats?.total_hours || 0)}h`}
+                  </span>
+                  <span className={styles.statLabel}>Hours Learning</span>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -117,48 +196,74 @@ export default function HomePage() {
           <section className={styles.currentLearning}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>Continue Learning</h2>
-              <Link href="/dashboard" className={styles.viewAll}>
+              <Link href="/Dashboard" className={styles.viewAll}>
                 View Dashboard →
               </Link>
             </div>
-            
-            <div className={styles.currentCourse}>
-              <div className={styles.courseHeader}>
-                <div className={styles.courseIcon}>💬</div>
-                <div className={styles.courseInfo}>
-                  <h3 className={styles.courseTitle}>ChatGPT Mastery</h3>
-                  <p className={styles.courseDesc}>
-                    Advanced prompt engineering, AI workflows, and productivity automation
-                  </p>
+
+            {loading ? (
+              <div className={styles.currentCourse}>
+                <p>Loading your courses...</p>
+              </div>
+            ) : enrolledTracks.length > 0 ? (
+              <div className={styles.currentCourse}>
+                <div className={styles.courseHeader}>
+                  <div className={styles.courseIcon}>
+                    {allTracks.find(t => t.slug === enrolledTracks[0].track_slug)?.icon || "📚"}
+                  </div>
+                  <div className={styles.courseInfo}>
+                    <h3 className={styles.courseTitle}>
+                      {allTracks.find(t => t.slug === enrolledTracks[0].track_slug)?.title || enrolledTracks[0].track_name}
+                    </h3>
+                    <p className={styles.courseDesc}>
+                      {allTracks.find(t => t.slug === enrolledTracks[0].track_slug)?.description || "Continue your learning journey"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.courseProgress}>
+                  <div className={styles.progressInfo}>
+                    <span className={styles.progressLabel}>Course Progress</span>
+                    <span className={styles.progressPercent}>
+                      {Math.round(enrolledTracks[0].percent_complete || 0)}%
+                    </span>
+                  </div>
+                  <div className={styles.progressBar}>
+                    <div
+                      className={styles.progressFill}
+                      style={{ width: `${enrolledTracks[0].percent_complete || 0}%` }}
+                    />
+                  </div>
+                  <div className={styles.progressDetails}>
+                    <span>
+                      {enrolledTracks[0].tasks_completed || 0} tasks completed
+                    </span>
+                    <span>
+                      Last activity: {enrolledTracks[0].last_accessed
+                        ? new Date(enrolledTracks[0].last_accessed).toLocaleDateString()
+                        : "Never"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className={styles.courseActions}>
+                  <Link href={`/track/${enrolledTracks[0].track_slug}`} className={styles.primaryBtn}>
+                    Continue Learning →
+                  </Link>
+                  <Link href="/Dashboard" className={styles.secondaryBtn}>
+                    Review Progress
+                  </Link>
                 </div>
               </div>
-              
-              <div className={styles.courseProgress}>
-                <div className={styles.progressInfo}>
-                  <span className={styles.progressLabel}>Course Progress</span>
-                  <span className={styles.progressPercent}>65%</span>
-                </div>
-                <div className={styles.progressBar}>
-                  <div 
-                    className={styles.progressFill} 
-                    style={{ width: '65%' }}
-                  />
-                </div>
-                <div className={styles.progressDetails}>
-                  <span>12 of 18 lessons completed</span>
-                  <span>Estimated: 3 hours remaining</span>
+            ) : (
+              <div className={styles.currentCourse}>
+                <div className={styles.emptyState}>
+                  <div className={styles.emptyIcon}>📚</div>
+                  <h3>No courses started yet</h3>
+                  <p>Browse the tracks below and start your AI learning journey!</p>
                 </div>
               </div>
-              
-              <div className={styles.courseActions}>
-                <Link href="/track/chatgpt" className={styles.primaryBtn}>
-                  Continue Learning →
-                </Link>
-                <button className={styles.secondaryBtn}>
-                  Review Progress
-                </button>
-              </div>
-            </div>
+            )}
           </section>
 
           {/* EXPLORE TRACKS */}
@@ -167,11 +272,19 @@ export default function HomePage() {
               <h2 className={styles.sectionTitle}>Explore AI Tracks</h2>
               <p className={styles.sectionSubtitle}>Choose your path to AI mastery</p>
             </div>
-            
+
             <div className={styles.tracksGrid}>
-              {tracks.map((track, index) => (
-                <TrackCard key={index} {...track} />
-              ))}
+              {allTracks.map((track, index) => {
+                const enrollment = enrolledTracks.find(et => et.track_slug === track.slug);
+                return (
+                  <TrackCard
+                    key={index}
+                    {...track}
+                    enrolled={!!enrollment}
+                    progress={enrollment?.percent_complete || 0}
+                  />
+                );
+              })}
             </div>
           </section>
 
@@ -218,7 +331,25 @@ export default function HomePage() {
 }
 
 /* TRACK CARD COMPONENT */
-function TrackCard({ title, description, progress, icon, slug }) {
+function TrackCard({ title, description, progress, icon, slug, enrolled }) {
+  const router = useRouter();
+  const [enrolling, setEnrolling] = useState(false);
+
+  const handleStart = async () => {
+    if (enrolled) {
+      router.push(`/track/${slug}`);
+      return;
+    }
+
+    // Redirect to Questionnaire for Personalization
+    const params = new URLSearchParams({
+      track: slug,
+      title: title
+    });
+
+    router.push(`/questionnaire?${params.toString()}`);
+  };
+
   return (
     <div className={styles.trackCard}>
       <div className={styles.trackCardHeader}>
@@ -228,33 +359,31 @@ function TrackCard({ title, description, progress, icon, slug }) {
           <p className={styles.trackDesc}>{description}</p>
         </div>
       </div>
-      
+
       <div className={styles.trackProgress}>
-        {progress > 0 ? (
+        {enrolled ? (
           <>
             <div className={styles.progressBar}>
-              <div 
-                className={styles.progressFill} 
+              <div
+                className={styles.progressFill}
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <span className={styles.progressText}>{progress}% Complete</span>
+            <span className={styles.progressText}>{Math.round(progress)}% Complete</span>
           </>
         ) : (
           <span className={styles.newLabel}>New Track</span>
         )}
       </div>
-      
+
       <div className={styles.trackActions}>
-        {progress > 0 ? (
-          <Link href={`/track/${slug}`} className={styles.continueBtn}>
-            Continue
-          </Link>
-        ) : (
-          <Link href={`/questionnaire?track=${slug}`} className={styles.exploreBtn}>
-            Start Learning
-          </Link>
-        )}
+        <button
+          onClick={handleStart}
+          className={enrolled ? styles.continueBtn : styles.exploreBtn}
+          disabled={enrolling}
+        >
+          {enrolling ? "Enrolling..." : enrolled ? "Continue" : "Start Learning"}
+        </button>
         <button className={styles.previewBtn}>
           Preview
         </button>

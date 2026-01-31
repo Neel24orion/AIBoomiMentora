@@ -12,7 +12,7 @@ export default function LandingPage() {
     const handleScroll = () => {
       setScrollY(window.scrollY);
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -28,7 +28,7 @@ export default function LandingPage() {
       </div>
 
       {/* NAVBAR */}
-      <nav className={styles.navbar} style={{ 
+      <nav className={styles.navbar} style={{
         background: scrollY > 50 ? 'rgba(10, 5, 32, 0.95)' : 'transparent',
         backdropFilter: scrollY > 50 ? 'blur(10px)' : 'none'
       }}>
@@ -37,12 +37,12 @@ export default function LandingPage() {
             <div className={styles.logoIcon}>🚀</div>
             <span className={styles.logoText}>The Mentora AI</span>
           </div>
-          
+
           <div className={styles.navLinks}>
             <a href="#features" className={styles.navLink}>Features</a>
             <a href="#how-it-works" className={styles.navLink}>How it Works</a>
             <a href="#pricing" className={styles.navLink}>Pricing</a>
-            <Link href="/home" className={styles.navButton}>
+            <Link href="/login" className={styles.navButton}>
               Launch App
             </Link>
           </div>
@@ -57,24 +57,24 @@ export default function LandingPage() {
               Master <span className={styles.gradientText}>AI Tools</span><br />
               with Intelligent Guidance
             </h1>
-            
+
             <p className={styles.heroSubtitle}>
-              Learn by doing. Mentora AI guides you through real-world AI challenges, 
+              Learn by doing. Mentora AI guides you through real-world AI challenges,
               tracks your progress, and helps you master skills 10x faster.
             </p>
-            
+
             <div className={styles.heroActions}>
-              <Link href="/home" className={styles.primaryButton}>
+              <Link href="/login" className={styles.primaryButton}>
                 <span>Start Learning Free</span>
                 <span className={styles.buttonIcon}>🚀</span>
               </Link>
-              
+
               <button className={styles.secondaryButton}>
                 <span>Watch Demo</span>
                 <span className={styles.buttonIcon}>▶️</span>
               </button>
             </div>
-            
+
             <div className={styles.heroStats}>
               <div className={styles.statItem}>
                 <span className={styles.statNumber}>100+</span>
@@ -92,7 +92,7 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-          
+
           <div className={styles.heroVisual}>
             <div className={styles.floatingCard}>
               <div className={styles.cardGlow}></div>
@@ -102,14 +102,14 @@ export default function LandingPage() {
               <div className={styles.pulseRing}></div>
               <div className={styles.pulseRing2}></div>
             </div>
-            
+
             {/* Floating elements */}
             <div className={styles.floatingElement} style={{ top: '20%', left: '10%' }}>💬</div>
             <div className={styles.floatingElement} style={{ top: '60%', right: '15%' }}>🎨</div>
             <div className={styles.floatingElement} style={{ top: '30%', right: '5%' }}>💻</div>
           </div>
         </div>
-        
+
         {/* Scroll indicator */}
         <div className={styles.scrollIndicator}>
           <span>Explore</span>
@@ -128,21 +128,21 @@ export default function LandingPage() {
               Everything you need to master AI tools efficiently
             </p>
           </div>
-          
+
           <div className={styles.featuresGrid}>
-            <FeatureCard 
+            <FeatureCard
               icon="🧠"
               title="AI-Powered Guidance"
               description="Real-time mentorship while you work with AI tools"
               gradient="blue"
             />
-            <FeatureCard 
+            <FeatureCard
               icon="📊"
               title="Progress Analytics"
               description="Track skill growth, XP, and milestones with detailed insights"
               gradient="purple"
             />
-            <FeatureCard 
+            <FeatureCard
               icon="🎮"
               title="Gamified Learning"
               description="Level up, maintain streaks, and unlock achievements"
@@ -161,25 +161,25 @@ export default function LandingPage() {
               A simple 3-step process to AI mastery
             </p>
           </div>
-          
+
           <div className={styles.stepsContainer}>
             <div className={styles.connectingLine}></div>
-            
-            <Step 
+
+            <Step
               number="01"
               title="Choose Your Track"
               description="Select from 100+ AI tools and learning paths"
               icon="🎯"
               delay="0s"
             />
-            <Step 
+            <Step
               number="02"
               title="Learn by Doing"
               description="Complete real-world tasks with AI guidance"
               icon="🚀"
               delay="0.2s"
             />
-            <Step 
+            <Step
               number="03"
               title="Master & Level Up"
               description="Review feedback, improve, and unlock new skills"
@@ -199,9 +199,9 @@ export default function LandingPage() {
               Start for free, upgrade as you grow
             </p>
           </div>
-          
+
           <div className={styles.pricingGrid}>
-            <PricingCard 
+            <PricingCard
               title="Free"
               price="₹0"
               period="forever"
@@ -209,8 +209,8 @@ export default function LandingPage() {
               buttonText="Get Started"
               variant="standard"
             />
-            
-            <PricingCard 
+
+            <PricingCard
               title="Premium"
               price="₹199"
               period="per month"
@@ -219,8 +219,8 @@ export default function LandingPage() {
               variant="featured"
               featured={true}
             />
-            
-            <PricingCard 
+
+            <PricingCard
               title="Enterprise"
               price="Custom"
               period="contact us"
@@ -242,16 +242,16 @@ export default function LandingPage() {
                 Join 500+ learners who are already accelerating their AI skills
               </p>
             </div>
-            
+
             <div className={styles.ctaActions}>
-              <Link href="/home" className={styles.ctaButton}>
+              <Link href="/login" className={styles.ctaButton}>
                 Start Learning Free
               </Link>
               <button className={styles.ctaSecondaryButton}>
                 Book a Demo
               </button>
             </div>
-            
+
             <div className={styles.ctaGlow}></div>
           </div>
         </div>
@@ -277,7 +277,7 @@ function FeatureCard({ icon, title, description, gradient = 'blue' }) {
 
 function Step({ number, title, description, icon, delay }) {
   return (
-    <div 
+    <div
       className={styles.stepCard}
       style={{ animationDelay: delay }}
     >
@@ -285,12 +285,12 @@ function Step({ number, title, description, icon, delay }) {
         <div className={styles.stepNumber}>{number}</div>
         <div className={styles.stepIcon}>{icon}</div>
       </div>
-      
+
       <div className={styles.stepContent}>
         <h3 className={styles.stepTitle}>{title}</h3>
         <p className={styles.stepDescription}>{description}</p>
       </div>
-      
+
       <div className={styles.stepParticles}>
         <div className={styles.particle}></div>
         <div className={styles.particle}></div>
@@ -304,7 +304,7 @@ function PricingCard({ title, price, period, features, buttonText, variant, feat
   return (
     <div className={`${styles.pricingCard} ${featured ? styles.featured : ''}`}>
       {featured && <div className={styles.featuredBadge}>Most Popular</div>}
-      
+
       <div className={styles.pricingHeader}>
         <h3 className={styles.pricingTitle}>{title}</h3>
         <div className={styles.pricingAmount}>
@@ -312,7 +312,7 @@ function PricingCard({ title, price, period, features, buttonText, variant, feat
           <span className={styles.period}>/{period}</span>
         </div>
       </div>
-      
+
       <div className={styles.pricingFeatures}>
         {features.map((feature, index) => (
           <div key={index} className={styles.featureItem}>
@@ -321,14 +321,14 @@ function PricingCard({ title, price, period, features, buttonText, variant, feat
           </div>
         ))}
       </div>
-      
-      <Link 
-        href="/home" 
+
+      <Link
+        href="/login"
         className={`${styles.pricingButton} ${featured ? styles.featuredButton : ''}`}
       >
         {buttonText}
       </Link>
-      
+
       {featured && <div className={styles.pricingGlow}></div>}
     </div>
   );

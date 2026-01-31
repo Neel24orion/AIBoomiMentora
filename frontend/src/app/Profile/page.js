@@ -1,6 +1,24 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import useAuth from "../hooks/useAuth";
 import styles from "./Profile.module.css";
 
 export default function ProfilePage() {
+  const router = useRouter();
+  const { user, logout, isAuthenticated } = useAuth();
+
+  // Redirect to login if not authenticated
+  if (!isAuthenticated) {
+    router.push("/login");
+    return null;
+  }
+
+  const handleSignOut = () => {
+    logout();
+    router.push("/login");
+  };
+
   return (
     <main className={styles.page}>
 
@@ -13,30 +31,34 @@ export default function ProfilePage() {
       {/* PROFILE CARD */}
       <section className={styles.card}>
         <div className={styles.avatar}>
-          <span>👤</span>
+          <span>{user?.avatar_icon || "👤"}</span>
         </div>
 
         <div className={styles.info}>
-          <h2>Neel Rawal</h2>
-          <p className={styles.email}>neel@example.com</p>
+          <h2>{user?.display_name || user?.username || "User"}</h2>
+          <p className={styles.email}>{user?.email || "email@example.com"}</p>
         </div>
       </section>
 
-      {/* DETAILS */}
+      {/* STATS */}
       <section className={styles.section}>
-        <h3>Learning Preferences</h3>
+        <h3>Learning Stats</h3>
 
         <div className={styles.detailGrid}>
-          <Detail label="Current Level" value="Intermediate" />
-          <Detail label="Goal" value="Build AI Products" />
-          <Detail label="Daily Time" value="1–2 hours" />
+          <Detail label="Streak Days" value={user?.stats?.streak_days || 0} />
+          <Detail label="Total XP" value={user?.stats?.total_xp || 0} />
+          <Detail label="Hours Learned" value={Math.round(user?.stats?.total_hours || 0)} />
         </div>
       </section>
 
       {/* ACTIONS */}
       <section className={styles.actions}>
-        <button className={styles.primaryBtn}>Edit Profile</button>
-        <button className={styles.secondaryBtn}>Sign Out</button>
+        <button className={styles.primaryBtn} onClick={() => router.push("/home")}>
+          Back to Home
+        </button>
+        <button className={styles.secondaryBtn} onClick={handleSignOut}>
+          Sign Out
+        </button>
       </section>
 
       {/* FOOTER */}
