@@ -42,6 +42,32 @@
   cursor: pointer;
 }
 
+
+/* LAYOUT */
+.layout {
+  display: flex;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 220px;
+  min-height: calc(100vh - 70px);
+  background: #101025;
+  padding: 30px 20px;
+}
+
+.sidebar h3 {
+  margin-bottom: 30px;
+}
+
+.sidebar ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  opacity: 0.85;
+}
+
 /* MAIN CONTENT */
 .content {
   flex: 1;
