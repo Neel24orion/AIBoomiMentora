@@ -1,5 +1,6 @@
 import styles from "./home.module.css";
 import Sidebar from "../../components/Sidebar";
+import Link from "next/link"; // ✅ ADD THIS LINE
 
 
 
@@ -30,7 +31,12 @@ export default function HomePage() {
             <div className={`${styles.courseCard} ${styles.active}`}>
               <h3>ChatGPT Mastery</h3>
               <p>Continue learning prompt engineering and AI usage.</p>
-              <button className={styles.primary}>Continue</button>
+
+              {/* ✅ CONTINUE → /questionnaire */}
+              <Link href="/questionnaire">
+                <button className={styles.primary}>Continue</button>
+              </Link>
+
             </div>
           </div>
 

@@ -1,4 +1,4 @@
-/* FULL PAGE BACKGROUND — SAME AS GLOBAL */
+/* PAGE BACKGROUND */
 .page {
   position: fixed;
   inset: 0;
@@ -9,17 +9,17 @@
   padding: 40px 20px;
 }
 
-/* QUESTIONNAIRE CARD — DARK GLASS STYLE */
+
+/* CARD ANIMATION */
 .card {
-  background: rgba(18, 18, 42, 0.95);
+  background: white;
   width: 100%;
   max-width: 520px;
   padding: 40px;
   border-radius: 20px;
-  border: 1px solid #1f1f3a;
-  box-shadow: 0 30px 80px rgba(124, 124, 255, 0.35);
-  backdrop-filter: blur(16px);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
 
+  /* animation */
   animation: cardEnter 0.6s ease-out forwards;
 }
 
@@ -27,12 +27,12 @@
 .title {
   font-size: 1.8rem;
   font-weight: 700;
-  color: white;
+  color: #1f2937;
 }
 
 .subtitle {
   margin-top: 10px;
-  color: #9ca3af;
+  color: #6b7280;
   font-size: 0.95rem;
 }
 
@@ -55,7 +55,7 @@
 .questionBlock h3 {
   font-size: 1rem;
   margin-bottom: 12px;
-  color: #e5e7eb;
+  color: #111827;
 }
 
 /* OPTIONS */
@@ -70,31 +70,29 @@
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid #1f1f3a;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
   font-size: 0.95rem;
-  background: #12122a;
-  color: #e5e7eb;
+  background: white;
 }
 
 .options input {
-  accent-color: #7c7cff;
+  accent-color: #5b5fd8;
 }
 
 .options label:hover {
-  background: #181836;
-  border-color: #7c7cff;
-  box-shadow: 0 0 16px rgba(124, 124, 255, 0.3);
+  background: #f4f6ff;
+  border-color: #5b5fd8;
 }
 
-/* PRIMARY BUTTON */
+/* BUTTON */
 .primaryBtn {
   margin-top: 40px;
   width: 100%;
   padding: 14px;
-  background: linear-gradient(90deg, #7c7cff, #b983ff);
+  background: linear-gradient(90deg, #5b5fd8, #7c7cff);
   color: white;
   border: none;
   border-radius: 12px;
@@ -107,7 +105,7 @@
 
 .primaryBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(124, 124, 255, 0.5);
+  box-shadow: 0 10px 30px rgba(91, 95, 216, 0.4);
 }
 
 /* ===================== */
@@ -117,7 +115,7 @@
 @keyframes cardEnter {
   from {
     opacity: 0;
-    transform: translateY(24px) scale(0.97);
+    transform: translateY(20px) scale(0.98);
   }
   to {
     opacity: 1;
@@ -128,7 +126,7 @@
 @keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
