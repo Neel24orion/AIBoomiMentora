@@ -5,6 +5,10 @@
   font-family: Inter, system-ui, sans-serif;
 }
 
+.layout {
+  display: flex;
+}
+
 /* NAVBAR */
 .navbar {
   position: sticky;

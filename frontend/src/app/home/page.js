@@ -1,4 +1,7 @@
 import styles from "./home.module.css";
+import Sidebar from "../../components/Sidebar";
+
+
 
 export default function HomePage() {
   return (
@@ -16,16 +19,8 @@ export default function HomePage() {
 
       <div className={styles.layout}>
 
-        {/* SIDEBAR */}
-        <aside className={styles.sidebar}>
-          <h3>Mentora</h3>
-          <ul>
-            <li>Home</li>
-            <li>My Courses</li>
-            <li>Progress</li>
-            <li>Settings</li>
-          </ul>
-        </aside>
+        {/* SIDEBAR COMPONENT */}
+        <Sidebar />
 
         {/* MAIN CONTENT */}
         <section className={styles.content}>
@@ -59,8 +54,6 @@ export default function HomePage() {
     </main>
   );
 }
-
-/* ---------- COMPONENT ---------- */
 
 function Track({ title }) {
   return (
