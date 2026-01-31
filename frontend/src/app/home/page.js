@@ -1,13 +1,11 @@
 import styles from "./home.module.css";
 import Sidebar from "../../components/Sidebar";
-
-
+import Link from "next/link";
 
 export default function HomePage() {
   return (
     <main className={styles.homeWrapper}>
 
-      {/* NAVBAR */}
       <nav className={styles.navbar}>
         <div className={styles.logo}>The Mentora AI</div>
         <div className={styles.navLinks}>
@@ -19,22 +17,23 @@ export default function HomePage() {
 
       <div className={styles.layout}>
 
-        {/* SIDEBAR COMPONENT */}
         <Sidebar />
 
-        {/* MAIN CONTENT */}
         <section className={styles.content}>
           <h2>Your Current Course</h2>
 
           <div className={styles.currentCourse}>
-            <div className={`${styles.courseCard} ${styles.active}`}>
+            <Link
+              href="/track/chatgpt"
+              className={`${styles.courseCard} ${styles.active}`}
+            >
               <h3>ChatGPT Mastery</h3>
               <p>Continue learning prompt engineering and AI usage.</p>
-              <button className={styles.primary}>Continue</button>
-            </div>
+              <div className={styles.primary}>Continue</div>
+            </Link>
           </div>
 
-          <h2 style={{ marginTop: "60px" }}>Explore Tracks</h2>
+          <h2 className={styles.sectionTitle}>Explore Tracks</h2>
 
           <div className={styles.trackGrid}>
             <Track title="Claude AI" />
@@ -46,20 +45,20 @@ export default function HomePage() {
         </section>
       </div>
 
-      {/* FOOTER */}
       <footer className={styles.footer}>
         <p>© 2026 The Mentora AI</p>
       </footer>
-
     </main>
   );
 }
 
 function Track({ title }) {
+  const slug = title.toLowerCase().replace(/\s+/g, "-");
+
   return (
-    <div className={styles.trackCard}>
+    <Link href={`/track/${slug}`} className={styles.trackCard}>
       <h3>{title}</h3>
-      <button className={styles.secondary}>Enroll</button>
-    </div>
+      <div className={styles.secondary}>Enroll</div>
+    </Link>
   );
 }
