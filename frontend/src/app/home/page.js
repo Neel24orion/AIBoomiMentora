@@ -30,10 +30,10 @@ export default function HomePage() {
           <h2 className={styles.sectionTitle}>Explore Tracks</h2>
 
           <div className={styles.trackGrid}>
-            <Track title="Claude AI" />
-            <Track title="Gemini AI" />
-            <Track title="AI for Coding" />
-            <Track title="AI for Productivity" />
+            <Track title="CANVA" />
+            <Track title="NOTION" />
+            <Track title="CURSOR" />
+            <Track title="JASPER" />
           </div>
 
         </section>
@@ -41,7 +41,7 @@ export default function HomePage() {
 
       {/* FOOTER */}
       <footer className={styles.footer}>
-        <p>© 2026 The Mentora AI</p>
+        <p>© 2026 The Mentora AI a product by SnehalAnand Techventures</p>
       </footer>
     </main>
   );
