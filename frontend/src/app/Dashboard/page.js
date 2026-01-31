@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import Footer from "@/components/Footer";
 import styles from "./dashboard.module.css";
+=======
+import styles from "./Dashboard.module.css";
+>>>>>>> 2fc3190d128130d3c6fdf9596fd603f14305296d
 
 export default function Dashboard() {
   return (
