@@ -14,9 +14,7 @@ export default function TaskPage({ params }) {
   return (
     <main className={styles.wrapper}>
 
-      {/* NAVBAR */}
       
-        <Navbar />
       
 
       <div className={styles.layout}>

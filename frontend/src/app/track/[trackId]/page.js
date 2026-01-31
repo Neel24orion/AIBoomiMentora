@@ -45,8 +45,7 @@ export default function TrackPage({ params }) {
     <main className={styles.wrapper}>
 
       
-        <Navbar />
-      
+    
 
       <div className={styles.layout}>
         <Sidebar />

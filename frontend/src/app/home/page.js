@@ -6,17 +6,7 @@ export default function HomePage() {
   return (
     <main className={styles.homeWrapper}>
 
-      {/* NAVBAR */}
-      <nav className={styles.navbar}>
-        <div className={styles.logo}>The Mentora AI</div>
-        <div className={styles.navLinks}>
-          <Link href="/dashboard" className={styles.navLink}>
-            Dashboard
-          </Link>
-          <span className={styles.navLink}>Tracks</span>
-          <button className={styles.navCta}>Profile</button>
-        </div>
-      </nav>
+      
 
       <div className={styles.layout}>
 
