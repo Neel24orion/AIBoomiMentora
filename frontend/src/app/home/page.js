@@ -12,7 +12,10 @@ export default function HomePage() {
       <nav className={styles.navbar}>
         <div className={styles.logo}>The Mentora AI</div>
         <div className={styles.navLinks}>
-          <a>Dashboard</a>
+          <Link href="/dashboard" className={styles.navLink}>
+  Dashboard
+</Link>
+
           <a>Tracks</a>
           <button className={styles.navCta}>Profile</button>
         </div>

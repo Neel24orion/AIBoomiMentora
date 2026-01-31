@@ -76,6 +76,9 @@
   transition: all 0.2s ease;
   font-size: 0.95rem;
   background: white;
+
+  /* ✅ ADD THIS LINE */
+  color: #111827; /* black / dark text */
 }
 
 .options input {
@@ -93,7 +96,7 @@
   width: 100%;
   padding: 14px;
   background: linear-gradient(90deg, #5b5fd8, #7c7cff);
-  color: white;
+  color: rgb(249, 246, 246);
   border: none;
   border-radius: 12px;
   font-size: 1rem;
