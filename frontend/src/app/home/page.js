@@ -1,6 +1,7 @@
 import styles from "./home.module.css";
 import Sidebar from "../../components/Sidebar";
 import Link from "next/link";
+import Footer from "../../components/Footer";
 
 export default function HomePage() {
   return (
@@ -40,9 +41,7 @@ export default function HomePage() {
       </div>
 
       {/* FOOTER */}
-      <footer className={styles.footer}>
-        <p>© 2026 The Mentora AI</p>
-      </footer>
+      <Footer/>
     </main>
   );
 }

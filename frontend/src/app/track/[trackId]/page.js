@@ -1,143 +1,172 @@
 "use client";
 
-import { use, useState } from "react";   // 👈 ADD use
+import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./track.module.css";
 import Sidebar from "../../../components/Sidebar";
-import Navbar from "../../../components/Navbar";
+import Footer from "../../../components/Footer";
 
 export default function TrackPage({ params }) {
   const router = useRouter();
-
-  // 👇 IMPORTANT FIX
   const resolvedParams = use(params);
   const rawId = resolvedParams.trackId;
   const name = Array.isArray(rawId) ? rawId[0] : rawId || "";
-  
-  const taskId = resolvedParams.taskId;
-
 
   const [currentNode, setCurrentNode] = useState(0);
+  const [lessons, setLessons] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [lessonTaskMap, setLessonTaskMap] = useState({});
 
-  const journeyNodes = [
-    { id: 1, label: "Intro", position: 15, taskId: "t1" },
-    { id: 2, label: "Basics", position: 25, taskId: "t2" },
-    { id: 3, label: "Practice", position: 35, taskId: "t3" },
-    { id: 4, label: "Structured", position: 50, taskId: "t4" },
-    { id: 5, label: "Templates", position: 60, taskId: "t5" },
-    { id: 6, label: "Advanced", position: 75, taskId: "t6" },
-    { id: 7, label: "Master", position: 85, taskId: "t7" },
-    { id: 8, label: "Complete", position: 95, taskId: "t8" },
-  ];
+  // Fetch lessons
+  useEffect(() => {
+    async function fetchLessons() {
+      try {
+        const res = await fetch(`http://localhost:8000/lessons/${name}`);
+        const data = await res.json();
+        setLessons(data.lessons || []);
+      } catch (err) {
+        console.error("Lesson fetch error", err);
+      }
+    }
+    if (name) fetchLessons();
+  }, [name]);
 
-  const lessons = [
-    { id: 1, title: "Lesson 1", subtitle: "Introduction to AI", start: 10 },
-    { id: 2, title: "Lesson 2", subtitle: "Structured Prompts", start: 45 },
-    { id: 3, title: "Lesson 3", subtitle: "Advanced Techniques", start: 72 },
-  ];
+  // Fetch tasks
+  useEffect(() => {
+    async function fetchTasks() {
+      try {
+        const res = await fetch(`http://localhost:8000/tasks/${name}`);
+        const data = await res.json();
+        setTasks(data.tasks || []);
+      } catch (err) {
+        console.error("Task fetch error", err);
+      }
+    }
+    if (name) fetchTasks();
+  }, [name]);
 
-  const goToTask = (taskId, index) => {
-    setCurrentNode(index);
+  // Group tasks by lesson
+  useEffect(() => {
+    if (lessons.length && tasks.length) {
+      const mapping = {};
+      
+      lessons.forEach((lesson, lessonIndex) => {
+        const tasksPerLesson = Math.ceil(tasks.length / lessons.length);
+        const startIdx = lessonIndex * tasksPerLesson;
+        const endIdx = Math.min(startIdx + tasksPerLesson, tasks.length);
+        
+        mapping[lesson.title] = tasks.slice(startIdx, endIdx).map((task, idx) => ({
+          ...task,
+          globalIndex: startIdx + idx,
+          taskId: `t${startIdx + idx + 1}`
+        }));
+      });
+      
+      setLessonTaskMap(mapping);
+    }
+  }, [lessons, tasks]);
+
+  const goToTask = (taskId, globalIndex) => {
+    setCurrentNode(globalIndex);
     router.push(`/task/${taskId}`);
   };
 
   return (
     <main className={styles.wrapper}>
-
-      
-    
-
       <div className={styles.layout}>
         <Sidebar />
 
         <section className={styles.content}>
           <div className={styles.header}>
-            <h1 className={styles.title}>
-              {name.replaceAll("-", " ")}
-            </h1>
-            <p className={styles.subtitle}>
-              Your learning journey to mastery
-            </p>
+            <h1 className={styles.title}>{name.replaceAll("-", " ")}</h1>
+            <p className={styles.subtitle}>Your learning journey to mastery</p>
           </div>
 
-          <div className={styles.journeyContainer}>
+          <div className={styles.journeyWrapper}>
+            {/* PATH LINE */}
+            <div className={styles.pathLine}></div>
 
-            {/* SVG PATH */}
-            <svg className={styles.pathSvg}>
-              <path
-                d="M 150 50 Q 180 200 150 350 Q 120 500 150 650 Q 180 800 150 950"
-                stroke="url(#grad)"
-                strokeWidth="3"
-                fill="none"
-                strokeDasharray="10,10"
-              />
-              <defs>
-                <linearGradient id="grad">
-                  <stop offset="0%" stopColor="#6366f1" />
-                  <stop offset="100%" stopColor="#ec4899" />
-                </linearGradient>
-              </defs>
-            </svg>
-
-            {/* LESSON LABELS */}
-            {lessons.map((lesson) => (
+            {/* ROCKET */}
+            {tasks.length > 0 && (
               <div
-                key={lesson.id}
-                className={styles.lessonMarker}
-                style={{ top: `${lesson.start}%` }}
+                className={styles.rocket}
+                style={{
+                  top: `${
+                    Math.floor(currentNode / Math.ceil(tasks.length / lessons.length)) * 400 +
+                    140 +
+                    (currentNode % Math.ceil(tasks.length / lessons.length)) * 100
+                  }px`,
+                }}
               >
-                <div className={styles.lessonLabel}>
-                  <h3>{lesson.title}</h3>
-                  <p>{lesson.subtitle}</p>
-                </div>
+                🚀
               </div>
-            ))}
+            )}
 
-            {/* NODES */}
-            {journeyNodes.map((node, index) => {
-              const isCompleted = index <= currentNode;
-              const isCurrent = index === currentNode;
+            {/* LESSONS AND TASKS */}
+            {lessons.map((lesson, lessonIdx) => {
+              const lessonTasks = lessonTaskMap[lesson.title] || [];
+              const sectionTop = lessonIdx * 400;
 
               return (
                 <div
-                  key={node.id}
-                  className={`${styles.journeyNode}
-                    ${isCompleted ? styles.completed : ""}
-                    ${isCurrent ? styles.current : ""}`}
-                  style={{ top: `${node.position}%` }}
-                  onClick={() => goToTask(node.taskId, index)}
+                  key={lesson.title}
+                  className={styles.lessonSection}
+                  style={{ top: `${sectionTop}px` }}
                 >
-                  <div className={styles.nodeCircle}>
-                    <div className={styles.nodeInner}>
-                      {isCompleted ? "✓" : index + 1}
-                    </div>
+                  {/* LESSON HEADER */}
+                  <div className={styles.lessonBox}>
+                    <h2 className={styles.lessonTitle}>{lesson.title}</h2>
+                    <p className={styles.lessonDesc}>{lesson.description}</p>
                   </div>
-                  <div className={styles.nodeLabel}>{node.label}</div>
+
+                  {/* TASKS */}
+                  <div className={styles.tasksContainer}>
+                    {lessonTasks.map((task, taskIdx) => {
+                      const isCompleted = task.globalIndex < currentNode;
+                      const isCurrent = task.globalIndex === currentNode;
+
+                      return (
+                        <div
+                          key={task.taskId}
+                          className={`${styles.taskItem} ${
+                            isCompleted ? styles.completed : ""
+                          } ${isCurrent ? styles.current : ""}`}
+                          onClick={() => goToTask(task.taskId, task.globalIndex)}
+                        >
+                          {/* NODE */}
+                          <div className={styles.taskNode}>
+                            <div className={styles.nodeCircle}>
+                              {isCompleted ? "✓" : task.globalIndex + 1}
+                            </div>
+                          </div>
+
+                          {/* LABEL */}
+                          <div className={styles.taskLabel}>{task.label}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               );
             })}
-
-            {/* ROCKET */}
-            <div
-              className={styles.rocket}
-              style={{ top: `${journeyNodes[currentNode]?.position}%` }}
-            >
-              🚀
-            </div>
           </div>
 
-          {/* PROGRESS BAR */}
-          <div className={styles.progressInfo}>
+          {/* PROGRESS */}
+          <div className={styles.progressSection}>
             <div className={styles.progressBar}>
               <div
                 className={styles.progressFill}
                 style={{
-                  width: `${((currentNode + 1) / journeyNodes.length) * 100}%`,
+                  width: `${((currentNode + 1) / Math.max(tasks.length, 1)) * 100}%`,
                 }}
               />
             </div>
+            <p className={styles.progressText}>
+              {currentNode + 1} of {tasks.length} completed
+            </p>
           </div>
 
+          <Footer />
         </section>
       </div>
     </main>

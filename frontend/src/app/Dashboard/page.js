@@ -1,3 +1,4 @@
+import Footer from "@/components/Footer";
 import styles from "./dashboard.module.css";
 
 export default function Dashboard() {
@@ -42,7 +43,7 @@ export default function Dashboard() {
           <TrackCard title="AI for Productivity" />
         </div>
       </section>
-
+      <Footer/>
     </main>
   );
 }

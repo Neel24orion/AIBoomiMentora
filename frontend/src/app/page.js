@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 export default function Home() {
   return (
@@ -101,10 +102,7 @@ export default function Home() {
       </section>
 
       {/* FOOTER */}
-      <footer>
-        <p>© 2026 The Mentora AI a product by SnehalAnand Techventures.</p>
-      </footer>
-
+      <Footer/>
     </main>
   );
 }
