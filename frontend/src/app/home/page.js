@@ -3,6 +3,9 @@ import Sidebar from "../../components/Sidebar";
 import Link from "next/link";
 import Footer from "../../components/Footer";
 
+import useScrollReveal from "../hooks/useScroll";
+
+
 export default function HomePage() {
   return (
     <main className={styles.homeWrapper}>
