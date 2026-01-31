@@ -1,4 +1,3 @@
-import Sidebar from "../../components/Sidebar";
 import Footer from "../../components/Footer";
 import styles from "./Dashboard.module.css";
 

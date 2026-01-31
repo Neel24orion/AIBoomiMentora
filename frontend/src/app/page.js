@@ -90,13 +90,13 @@ export default function Home() {
           <Price
             title="Freemium"
             price="₹0"
-            features={["5 AI sessions", "Basic tracking"]}
+            features={["5 AI Tasks ", "Basic tracking"]}
           />
           <PricePro />
           <Price
             title="Enterprise"
-            price="$99"
-            features={["Teams", "Custom AI", "Support"]}
+            price="₹999"
+            features={["Teams", "Custom AI Tasks", "Support"]}
           />
         </div>
       </section>
@@ -150,9 +150,9 @@ function Price({ title, price, features }) {
 function PricePro() {
   return (
     <div className="price-card pro">
-      <h3>Pro</h3>
-      <h1>$29</h1>
-      <p>✓ Unlimited AI sessions</p>
+      <h3>Premium</h3>
+      <h1>₹199</h1>
+      <p>✓ Unlimited AI Tasks</p>
       <p>✓ Advanced analytics</p>
       <p>✓ Priority support</p>
 

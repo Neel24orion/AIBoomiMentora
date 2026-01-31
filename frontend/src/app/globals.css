@@ -21,7 +21,6 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: white;
 }
 
 .logo {
@@ -59,8 +58,6 @@ body {
 
 /* HERO */
 .hero {
-  background: radial-gradient(circle at top, #1b1b3a, #070710);
-  color: white;
   padding: 100px 80px;
   display: flex;
   justify-content: space-between;
@@ -146,29 +143,82 @@ body {
   color: #9ca3af;
 }
 
-/* FEATURES */
+/* ========================= */
+/* ✨ IMPROVED FEATURES ✨ */
+/* ========================= */
+
 .feature-grid {
-  margin-top: 50px;
+  margin-top: 60px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 32px;
 }
 
 .feature-card {
-  background: #12122a;
-  padding: 32px;
-  border-radius: 16px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  background: linear-gradient(
+    180deg,
+    rgba(18, 18, 42, 0.95),
+    rgba(14, 14, 34, 0.95)
+  );
+  padding: 36px 32px;
+  border-radius: 20px;
+  border: 1px solid #1f1f3a;
+  text-align: left;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+/* Gradient glow border */
+.feature-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    transparent,
+    rgba(124, 124, 255, 0.5),
+    transparent
+  );
+  -webkit-mask: 
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 .feature-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(124, 124, 255, 0.25);
+  transform: translateY(-8px);
+  box-shadow: 0 25px 50px rgba(124, 124, 255, 0.35);
 }
 
+/* Feature Icon */
 .feature-card .icon {
-  font-size: 1.5rem;
-  margin-bottom: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #7c7cff, #4dd0e1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  color: #0a0a18;
+  box-shadow: 0 0 20px rgba(124, 124, 255, 0.6);
+}
+
+.feature-card h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.feature-card p {
+  font-size: 0.95rem;
+  color: #9ca3af;
+  line-height: 1.6;
 }
 
 /* STEPS */
@@ -221,10 +271,6 @@ body {
   box-shadow: 0 30px 60px rgba(124, 124, 255, 0.35);
 }
 
-.price-card h1 span {
-  opacity: 0.6;
-}
-
 .price-card ul {
   list-style: none;
   margin: 20px 0;
@@ -232,6 +278,10 @@ body {
 
 .price-card ul li {
   margin-bottom: 8px;
+}
+
+.price-card button {
+  margin-top: 12px;
 }
 
 /* PRO PLAN */
@@ -249,9 +299,22 @@ body {
 /* FOOTER */
 footer {
   background: #0a0a18;
-  color: white;
   padding: 40px;
   text-align: center;
   font-size: 0.9rem;
   opacity: 0.6;
+}
+/* ========================= */
+/* FEATURE SCROLL ANIMATION */
+/* ========================= */
+
+.feature-card {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.feature-card.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
