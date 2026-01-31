@@ -1,19 +1,23 @@
+import styles from "./home.module.css";
+
 export default function HomePage() {
   return (
-    <main className="home-wrapper">
+    <main className={styles.homeWrapper}>
 
-      <nav className="navbar">
-        <div className="logo">The Mentora AI</div>
-        <div className="nav-links">
+      {/* NAVBAR */}
+      <nav className={styles.navbar}>
+        <div className={styles.logo}>The Mentora AI</div>
+        <div className={styles.navLinks}>
           <a>Dashboard</a>
           <a>Tracks</a>
-          <button className="nav-cta">Profile</button>
+          <button className={styles.navCta}>Profile</button>
         </div>
       </nav>
 
-      <div className="layout">
+      <div className={styles.layout}>
 
-        <aside className="sidebar">
+        {/* SIDEBAR */}
+        <aside className={styles.sidebar}>
           <h3>Mentora</h3>
           <ul>
             <li>Home</li>
@@ -23,20 +27,21 @@ export default function HomePage() {
           </ul>
         </aside>
 
-        <section className="content">
+        {/* MAIN CONTENT */}
+        <section className={styles.content}>
           <h2>Your Current Course</h2>
 
-          <div className="current-course">
-            <div className="course-card active">
+          <div className={styles.currentCourse}>
+            <div className={`${styles.courseCard} ${styles.active}`}>
               <h3>ChatGPT Mastery</h3>
               <p>Continue learning prompt engineering and AI usage.</p>
-              <button className="primary">Continue</button>
+              <button className={styles.primary}>Continue</button>
             </div>
           </div>
 
           <h2 style={{ marginTop: "60px" }}>Explore Tracks</h2>
 
-          <div className="track-grid">
+          <div className={styles.trackGrid}>
             <Track title="Claude AI" />
             <Track title="Gemini AI" />
             <Track title="AI for Coding" />
@@ -46,7 +51,8 @@ export default function HomePage() {
         </section>
       </div>
 
-      <footer>
+      {/* FOOTER */}
+      <footer className={styles.footer}>
         <p>© 2026 The Mentora AI</p>
       </footer>
 
@@ -54,11 +60,13 @@ export default function HomePage() {
   );
 }
 
+/* ---------- COMPONENT ---------- */
+
 function Track({ title }) {
   return (
-    <div className="track-card">
+    <div className={styles.trackCard}>
       <h3>{title}</h3>
-      <button className="secondary">Enroll</button>
+      <button className={styles.secondary}>Enroll</button>
     </div>
   );
 }

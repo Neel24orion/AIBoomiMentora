@@ -9,13 +9,14 @@
 
 body {
   font-family: "Inter", system-ui, sans-serif;
-  background: #f6f7fb;
-  color: #1f2937;
+  background: radial-gradient(circle at top, #1b1b3a, #070710);
+  color: white;
 }
 
 /* NAVBAR */
 .navbar {
-  background: linear-gradient(90deg, #5b5fd8, #7c7cff);
+  background: rgba(20, 20, 40, 0.6);
+  backdrop-filter: blur(12px);
   padding: 18px 80px;
   display: flex;
   justify-content: space-between;
@@ -43,12 +44,12 @@ body {
 
 .navbar nav a {
   cursor: pointer;
-  opacity: 0.9;
+  opacity: 0.85;
 }
 
 .nav-btn {
-  background: white;
-  color: #5b5fd8;
+  background: linear-gradient(90deg, #7c7cff, #b983ff);
+  color: white;
   padding: 8px 18px;
   border-radius: 8px;
   border: none;
@@ -58,7 +59,7 @@ body {
 
 /* HERO */
 .hero {
-  background: linear-gradient(135deg, #5b5fd8, #7c7cff);
+  background: radial-gradient(circle at top, #1b1b3a, #070710);
   color: white;
   padding: 100px 80px;
   display: flex;
@@ -76,12 +77,14 @@ body {
 }
 
 .hero h1 span {
-  color: #ffd6ff;
+  background: linear-gradient(90deg, #7c7cff, #4dd0e1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .hero p {
   margin-top: 20px;
-  opacity: 0.9;
+  opacity: 0.85;
   line-height: 1.6;
 }
 
@@ -92,10 +95,10 @@ body {
 }
 
 .primary {
-  background: white;
-  color: #5b5fd8;
+  background: linear-gradient(90deg, #7c7cff, #b983ff);
+  color: white;
   padding: 12px 26px;
-  border-radius: 8px;
+  border-radius: 10px;
   border: none;
   font-weight: 600;
   cursor: pointer;
@@ -103,10 +106,10 @@ body {
 
 .secondary {
   background: transparent;
-  border: 1px solid white;
+  border: 1px solid #333;
   color: white;
   padding: 12px 26px;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
 }
 
@@ -120,13 +123,14 @@ body {
 .mentor-box {
   width: 260px;
   height: 260px;
-  background: rgba(255, 255, 255, 0.15);
+  background: #14142a;
   border-radius: 24px;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 4rem;
   backdrop-filter: blur(12px);
+  box-shadow: 0 0 40px rgba(124, 124, 255, 0.35);
 }
 
 /* SECTIONS */
@@ -139,7 +143,7 @@ body {
 
 .subtitle {
   margin-top: 12px;
-  color: #6b7280;
+  color: #9ca3af;
 }
 
 /* FEATURES */
@@ -151,7 +155,7 @@ body {
 }
 
 .feature-card {
-  background: white;
+  background: #12122a;
   padding: 32px;
   border-radius: 16px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -159,7 +163,7 @@ body {
 
 .feature-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 40px rgba(124, 124, 255, 0.25);
 }
 
 .feature-card .icon {
@@ -177,7 +181,7 @@ body {
 }
 
 .step-card {
-  background: white;
+  background: #12122a;
   padding: 30px;
   border-radius: 16px;
   width: 240px;
@@ -186,8 +190,8 @@ body {
 .step-circle {
   width: 42px;
   height: 42px;
-  background: #5b5fd8;
-  color: white;
+  background: #7c7cff;
+  color: black;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -205,25 +209,19 @@ body {
 }
 
 .price-card {
-  background: white;
+  background: #12122a;
   padding: 36px;
   border-radius: 20px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #1f1f3a;
   transition: transform 0.35s ease, box-shadow 0.35s ease;
 }
 
 .price-card:hover {
   transform: translateY(-12px);
-  box-shadow: 0 30px 60px rgba(91, 95, 216, 0.25);
-}
-
-.price-card h1 {
-  margin: 20px 0;
-  font-size: 2rem;
+  box-shadow: 0 30px 60px rgba(124, 124, 255, 0.35);
 }
 
 .price-card h1 span {
-  font-size: 0.9rem;
   opacity: 0.6;
 }
 
@@ -236,20 +234,11 @@ body {
   margin-bottom: 8px;
 }
 
-.price-card button {
-  margin-top: 20px;
-}
-
 /* PRO PLAN */
 .price-card.pro {
-  background: linear-gradient(180deg, #5b5fd8, #7c7cff);
+  background: linear-gradient(180deg, #7c7cff, #5a5aff);
   color: white;
   border: none;
-}
-
-.price-card.pro:hover {
-  transform: translateY(-16px) scale(1.03);
-  box-shadow: 0 40px 80px rgba(91, 95, 216, 0.45);
 }
 
 .price-card.pro button {
@@ -259,9 +248,10 @@ body {
 
 /* FOOTER */
 footer {
-  background: #0f172a;
+  background: #0a0a18;
   color: white;
   padding: 40px;
   text-align: center;
   font-size: 0.9rem;
+  opacity: 0.6;
 }
