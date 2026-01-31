@@ -70,7 +70,7 @@ export default function Home() {
 
       {/* FOOTER */}
       <footer>
-        <p>© 2026 The Mentora AI a product by SnehalAnand Techventures.</p>
+        <p>©️ 2026 The Mentora AI a product by SnehalAnand Techventures.</p>
       </footer>
 
     </main>
