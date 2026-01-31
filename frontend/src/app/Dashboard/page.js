@@ -1,5 +1,6 @@
 import Footer from "../../components/Footer";
 import styles from "./Dashboard.module.css";
+import Sidebar from "../../components/Sidebar";
 
 export default function Dashboard() {
   return (
