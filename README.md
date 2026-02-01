@@ -1,4 +1,4 @@
-# 🚀 AI Mentora - Personalized AI Learning Platform
+# 🚀 The Mentora AI - Personalized AI Learning Platform
 
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
@@ -6,7 +6,7 @@
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python)](https://www.python.org/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org/)
 
-> An interactive, gamified learning platform designed to help users master various AI tools through personalized learning paths, real-time progress tracking, and AI-powered task evaluation.
+> Mentora AI is a hands-on learning platform that helps users master AI tools by actually using them. It provides real-time guidance, task-based learning, and personalized feedback, turning AI learning into an interactive, gamified experience.
 
 ---
 
@@ -18,7 +18,6 @@
 - [Project Structure](#-project-structure)
 - [Getting Started](#-getting-started)
 - [API Documentation](#-api-documentation)
-- [Screenshots](#-screenshots)
 - [Contributing](#-contributing)
 - [License](#-license)
 
@@ -401,22 +400,6 @@ Content-Type: application/json
 GET /api/tracks/{track_slug}/tasks/completed
 Authorization: Bearer {token}
 ```
-
----
-
-## 📸 Screenshots
-
-### Home Page
-*Interactive hero section with learning dashboard and track exploration*
-
-### Dashboard
-*Comprehensive user statistics with XP, streaks, and progress tracking*
-
-### Track Timeline
-*Rocket-powered interactive learning journey with lesson cards*
-
-### Task Completion
-*AI-powered task evaluation and feedback system*
 
 ---
 
