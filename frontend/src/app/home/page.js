@@ -114,7 +114,7 @@ export default function HomePage() {
           <section className={styles.hero}>
             <div className={styles.heroContent}>
               <h1 className={styles.heroTitle}>
-                Welcome to <span className={styles.gradientText}>AI Mentora</span>
+                Welcome to <span className={styles.gradientText}>The Mentora AI</span>
               </h1>
               <p className={styles.heroSubtitle}>
                 Master AI tools with personalized learning paths. Start your journey to becoming an AI expert.
